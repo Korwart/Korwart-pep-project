@@ -11,13 +11,12 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 
 /**
- * TODO: You will need to write your own endpoints and handlers for your controller. The endpoints you will need can be
- * found in readme.md as well as the test cases. You should
- * refer to prior mini-project labs and lecture materials for guidance on how a controller may be built.
+ * found in readme.md as well as the test cases
  */
 public class SocialMediaController {
     AccountService accountService;
     MessageService messageService;
+
     public SocialMediaController(){
         accountService = new AccountService();
         messageService = new MessageService();
@@ -32,7 +31,9 @@ public class SocialMediaController {
         Javalin app = Javalin.create();
         app.post("/register", this::postRegistrationHandler);
         app.post("/login", this::postLoginHandler);
-        app.post("/messages", this::postMessages);
+        app.post("/messages", this::postMessagesHandler);
+        app.get("/messages", this::getAllMessagesHandler);
+        app.get("/messages/{message_id}", this::getMessageByIdHandler);
         return app;
     }
 
@@ -58,7 +59,7 @@ public class SocialMediaController {
         }
     }
 
-    private void postMessages(Context ctx) throws JsonProcessingException {
+    private void postMessagesHandler(Context ctx) throws JsonProcessingException {
         ObjectMapper mapper = new ObjectMapper();
         Message message = mapper.readValue(ctx.body(), Message.class);
         Message addedmessage = messageService.addMessage(message);
@@ -69,4 +70,17 @@ public class SocialMediaController {
         }
     }
 
+    private void getAllMessagesHandler(Context ctx){
+        ctx.json(messageService.getAllMessages());
+    }
+
+    private void getMessageByIdHandler(Context ctx) {
+        Message message = messageService.getMessageById(Integer.parseInt(ctx.pathParam("message_id")));
+        if(message==null){
+            ctx.status(200);
+        }
+        else{
+            ctx.json(message);
+        }
+    }
 }
