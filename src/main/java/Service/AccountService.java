@@ -14,4 +14,7 @@ public class AccountService {
         return accountDAO.insertAccount(account);
     }
 
+    public Account checkLogin(Account account){
+        return accountDAO.chLogin(account);
+    }
 }
