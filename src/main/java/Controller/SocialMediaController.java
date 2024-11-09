@@ -34,6 +34,9 @@ public class SocialMediaController {
         app.post("/messages", this::postMessagesHandler);
         app.get("/messages", this::getAllMessagesHandler);
         app.get("/messages/{message_id}", this::getMessageByIdHandler);
+        app.delete("/messages/{message_id}", this::deleteMessageByIdHandler);
+        app.patch("/messages/{message_id}", this::updateMessageByIdHandler);
+        app.get("/accounts/{account_id}/messages", this::getAllMessagesByUserHandler);
         return app;
     }
 
@@ -70,11 +73,11 @@ public class SocialMediaController {
         }
     }
 
-    private void getAllMessagesHandler(Context ctx){
+    private void getAllMessagesHandler(Context ctx) throws JsonProcessingException {
         ctx.json(messageService.getAllMessages());
     }
 
-    private void getMessageByIdHandler(Context ctx) {
+    private void getMessageByIdHandler(Context ctx) throws JsonProcessingException {
         Message message = messageService.getMessageById(Integer.parseInt(ctx.pathParam("message_id")));
         if(message==null){
             ctx.status(200);
@@ -83,4 +86,35 @@ public class SocialMediaController {
             ctx.json(message);
         }
     }
+
+    private void deleteMessageByIdHandler(Context ctx) throws JsonProcessingException {
+        Message message = messageService.deleteMessageById(Integer.parseInt(ctx.pathParam("message_id")));
+        if(message==null){
+            ctx.status(200);
+        }
+        else{
+            ctx.json(message);
+        }
+    }
+
+    private void updateMessageByIdHandler(Context ctx) throws JsonProcessingException {
+        ObjectMapper mapper = new ObjectMapper();
+        Message ms = mapper.readValue(ctx.body(), Message.class);
+        int message_id = Integer.parseInt(ctx.pathParam("message_id"));
+        String message_text = ms.getMessage_text(); 
+
+        Message message = messageService.updateMessageById(message_id, message_text);
+        if(message==null){
+            ctx.status(400);
+        }
+        else{
+            ctx.json(message);
+        }
+    }
+
+    private void getAllMessagesByUserHandler(Context ctx) throws JsonProcessingException {
+        ctx.json(accountService.getAllMessagesByUser(Integer.parseInt(ctx.pathParam("account_id"))));
+    }
+    
+    
 }
