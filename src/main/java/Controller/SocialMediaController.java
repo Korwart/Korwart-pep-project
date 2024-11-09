@@ -116,5 +116,4 @@ public class SocialMediaController {
         ctx.json(accountService.getAllMessagesByUser(Integer.parseInt(ctx.pathParam("account_id"))));
     }
     
-    
 }
